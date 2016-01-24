@@ -26,17 +26,21 @@ var arrayOfElements = [
                         // [11.21, 21.83, 29.65, 380.7]
 ]
 
-/*
-    Массив, в который будет записана нормализованная
-    таблица с расстояниями между образами
-*/
+// Массив, в который будет записана нормализованная
+// таблица с расстояниями между образами
 var arrayOfDistances = new Array(arrayOfElements.length);
 arrayOfDistances = normalizeDistances(arrayOfElements);
 
-//Выводим полученную таблицу в подобающем виде
+
+// В этот массив будет записана иерархия кластеров
+var arrayOfHierarchy = [];
+
+// Выводим полученную таблицу в подобающем виде
 brushOutput(arrayOfDistances);
 console.log();
 brushOutput(calculateNewDistances(arrayOfDistances));
+
+
 
 
 /*
@@ -52,23 +56,20 @@ function calculateNewDistances(arrayOfDistances){
     var candidatesForUnion = new Array(2);
     candidatesForUnion = lookForMin(arrayOfDistances);
 
-    for (i = 0; i < arrayOfDistances.length; i++) {
-        for (j = 0; i < arrayOfDistances.length; i++) {
-            // Отбрассываем 2 класса, которые будут объединены
-            if ((i != candidatesForUnion[0]) &&
-                (j != candidatesForUnion[0]) &&
-                (i != candidatesForUnion[1]) &&
-                (j != candidatesForUnion[1])) {
-                // ... а для остальных вычисляем в соответсвии
-                // с правилом минимума новые значения и записываем
-                // в конец каждой строки таблицы
-                arrayOfDistances[i].push(
-                    Math.min(arrayOfDistances[i][candidatesForUnion[0]],
-                    arrayOfDistances[i][candidatesForUnion[1]])
-                );
-            }
+    for (var i = 0; i < arrayOfDistances.length; i++) {
+        // Отбрассываем 2 класса, которые будут объединены
+        if ((i != candidatesForUnion[0]) &&
+            (i != candidatesForUnion[1])) {
+            // ... а для остальных вычисляем в соответсвии
+            // с правилом минимума новые значения и записываем
+            // в конец каждой строки таблицы
+            arrayOfDistances[i].push(
+                Math.min(arrayOfDistances[i][candidatesForUnion[0]],
+                arrayOfDistances[i][candidatesForUnion[1]])
+            );
         }
     }
+
 
     // Удаляем кандидатов, которые были объединены в кластер
     arrayOfDistances = deleteCandidates(
@@ -125,35 +126,35 @@ function calculateNewDistances(arrayOfDistances){
 
         return tableOfDistances;
     }
+}
 
-    /*
-        Находит минимальный элемент в массиве.
-        Возвращает массив из двух элементов:
-        первый - номер строки, второй - столбец этого элемента.
-        Его номер строки и столбца указывает на номера образов,
-        которые являются кандидатами на объединение кластер.
-    */
-    function lookForMin(arrayOfElements){
+/*
+    Находит минимальный элемент в массиве.
+    Возвращает массив из двух элементов:
+    первый - номер строки, второй - столбец этого элемента.
+    Его номер строки и столбца указывает на номера образов,
+    которые являются кандидатами на объединение кластер.
+*/
+function lookForMin(arrayOfElements){
 
-        // Расстояние не может быть больше бесконечности :D
-        var min = Infinity;
-        var indexOfMin = new Array(2);
+    // Расстояние не может быть больше бесконечности :D
+    var min = Infinity;
+    var indexOfMin = new Array(2);
 
-        // Находим минимальный элемент
-        for (var i = 0; i < arrayOfElements.length; i++){
-            for (j = 0; j < arrayOfElements.length; j++){
-                //Проверяются только элементы выше главной диагонали
-                if (j > i) {
-                    if (min > arrayOfDistances[i][j]){
-                        min = arrayOfDistances[i][j];
-                        indexOfMin[0] = i;
-                        indexOfMin[1] = j;
-                    }
+    // Находим минимальный элемент
+    for (var i = 0; i < arrayOfElements.length; i++){
+        for (j = 0; j < arrayOfElements.length; j++){
+            //Проверяются только элементы выше главной диагонали
+            if (j > i) {
+                if (min > arrayOfDistances[i][j]){
+                    min = arrayOfDistances[i][j];
+                    indexOfMin[0] = i;
+                    indexOfMin[1] = j;
                 }
             }
         }
-        return indexOfMin;
     }
+    return indexOfMin;
 }
 
 /*
@@ -172,7 +173,7 @@ function brushOutput(someArray){
 
 /*
     Возвращает массив с нормализованными данными об образах,
-    в формате квадратной матрицы, элементы которой эвклидовы
+    в формате квадратной матрицы, элементы которой - эвклидовы
     расстояния между образами.
     На входе массив с образами.
 */
