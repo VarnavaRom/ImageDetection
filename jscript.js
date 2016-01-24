@@ -108,10 +108,9 @@ function calculateNewDistances(arrayOfDistances){
     */
     function deleteCandidates(tableOfDistances, candidate1, candidate2){
 
+        // Сортируем в порядке возрастания образы по их значению
         if (candidate1 > candidate2) {
-            candidate2 = candidate1 + candidate2;
-            candidate1 = candidate2 - candidate1;
-            candidate2 = candidate2 - candidate1;
+            candidate2 = [candidate1, candidate1 = candidate2] [0]
         }
 
         // Удаляем столбцы
