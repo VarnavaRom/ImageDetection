@@ -4,112 +4,215 @@ var arrayOfElements = [
                         [4.714, 47.32, 27.97, 499.2],
                         [4.943, 45.46, 24.73, 535.3],
                         [5.242, 52.01, 21.6, 474.6],
-                        [5.521, 49.03, 22.43, 533.9],
-                        [7.904, 66.17, 19.19, 118.9],
-                        [5.917, 81.57, 13.27, 137.7],
-                        [7.296, 71.47, 15.45, 135.8],
-                        [6.886, 70.57, 17.43, 143],
-                        [8.4, 40.54, 13.28, 846.2],
-                        [8.88, 56.97, 16.95, 629.1],
-                        [7.969, 42.79, 8.648, 795],
-                        [7.352, 28.35, 10.69, 563],
-                        [9.121, 29.09, 9.003, 429.4],
-                        [10.42, 43.19, 10.27, 725.2],
-                        [9.01, 45.69, 14.61, 669.1],
-                        [12.14, 28.53, 24.8, 379.5],
-                        [11.69, 32.84, 21.53, 384],
-                        [11.77, 28.64, 21.62, 468.3],
-                        [11.06, 40.08, 30.42, 495.5],
-                        [10.17, 25.49, 26.17, 364.4],
-                        [10.76, 28.67, 25.15, 429.6],
-                        [11.56, 38.88, 23.23, 584.7],
-                        [11.21, 21.83, 29.65, 380.7]
+                        [5.521, 49.03, 22.43, 533.9]//,
+                        // [7.904, 66.17, 19.19, 118.9],
+                        // [5.917, 81.57, 13.27, 137.7],
+                        // [7.296, 71.47, 15.45, 135.8],
+                        // [6.886, 70.57, 17.43, 143],
+                        // [8.4, 40.54, 13.28, 846.2],
+                        // [8.88, 56.97, 16.95, 629.1],
+                        // [7.969, 42.79, 8.648, 795],
+                        // [7.352, 28.35, 10.69, 563],
+                        // [9.121, 29.09, 9.003, 429.4],
+                        // [10.42, 43.19, 10.27, 725.2],
+                        // [9.01, 45.69, 14.61, 669.1],
+                        // [12.14, 28.53, 24.8, 379.5],
+                        // [11.69, 32.84, 21.53, 384],
+                        // [11.77, 28.64, 21.62, 468.3],
+                        // [11.06, 40.08, 30.42, 495.5],
+                        // [10.17, 25.49, 26.17, 364.4],
+                        // [10.76, 28.67, 25.15, 429.6],
+                        // [11.56, 38.88, 23.23, 584.7],
+                        // [11.21, 21.83, 29.65, 380.7]
 ]
 
-/*  Массив, в который будет записана нормализованная
+/*
+    Массив, в который будет записана нормализованная
     таблица с расстояниями между образами
 */
 var arrayOfDistances = new Array(arrayOfElements.length);
-
-//  В этот массив записываются промежуточные значения
-var arrayOfIntermediates = new Array(arrayOfElements.length);
-
-for (var i = 0; i < arrayOfElements.length; i++) {
-    for (var j = 0; j < arrayOfElements.length; j++) {
-        if (i == j) {
-            arrayOfIntermediates[j] = 0;
-        } else {
-            arrayOfIntermediates[j] = distance(arrayOfElements[i],
-                                      arrayOfElements[j]);
-        }
-    }
-    arrayOfDistances[i] = arrayOfIntermediates;
-    //Очистка промежуточного массива
-    arrayOfIntermediates = new Array(arrayOfElements.length);
-}
+arrayOfDistances = normalizateDistances(arrayOfElements);
 
 //Выводим полученную таблицу в подобающем виде
-var stringlog = '';
-for (i = 0; i < arrayOfDistances.length; i++){
-    stringlog = arrayOfDistances[i].join('\t');
-    console.log(stringlog);
-    stringlog = '';
-}
+brushOutput(arrayOfDistances);
+console.log();
+brushOutput(calculateNewDistances(arrayOfDistances));
+
 
 /*
-    В этот массив будут записываться номера образов,
-    которые будут объединены в кластер.
-    Нумерация образов с 0.
+    Вычисляет новые расстояния между образами и новым кластером.
+    Возвращает массив, в котором добавлен новый кластер.
 */
-var candidatesToUnion = new Array(2);
+function calculateNewDistances(arrayOfDistances){
+    /*
+        В этот массив будут записаны номера образов,
+        которые будут объединены в кластер.
+        Нумерация образов с 0.
+    */
+    var candidatesForUnion = new Array(2);
+    candidatesForUnion = lookForMin(arrayOfDistances);
 
-candidatesToUnion = indexesOfMin(arrayOfDistances);
-
-/*
-    Находит минимальный элемент в массиве.
-    Возвращает массив из двух элементов:
-    первый - номер строки, второй - столбец этого элемента.
-    Его номер строки и столбца указывает на образы,
-    которые являются кандидатами на объединение кластер.
-*/
-
-function indexesOfMin(arrayOfElements){
-
-    // Расстояние не может быть больше бесконечности :D
-    var min = Infinity;
-    var indexOfMin = new Array(2);
-
-    // Находим минимальный элемент
-    for (i = 0; i < arrayOfElements.length; i++){
-        for (j = 0; j < arrayOfElements.length; j++){
-            //Проверяются только элементы выше главной диагонали
-            if (j > i) {
-                if (min > arrayOfDistances[i][j]){
-                    min = arrayOfDistances[i][j];
-                    indexOfMin[0] = i;
-                    indexOfMin[1] = j;
-                }
+    for (i = 0; i < arrayOfDistances.length; i++) {
+        for (j = 0; i < arrayOfDistances.length; i++) {
+            // Отбрассываем 2 класса, которые будут объединены
+            if ((i != candidatesForUnion[0]) &&
+                (j != candidatesForUnion[0]) &&
+                (i != candidatesForUnion[1]) &&
+                (j != candidatesForUnion[1])) {
+                // ... а для остальных вычисляем в соответсвии
+                // с правилом минимума новые значения и записываем
+                // в конец каждой строки таблицы
+                arrayOfDistances[i].push(
+                    Math.min(arrayOfDistances[i][candidatesForUnion[0]],
+                    arrayOfDistances[i][candidatesForUnion[1]])
+                );
             }
         }
     }
 
-    return indexOfMin;
+    // Удаляем кандидатов, которые были объединены в кластер
+    arrayOfDistances = deleteCandidates(
+        arrayOfDistances,
+        candidatesForUnion[0],
+        candidatesForUnion[1]
+    );
+
+    // В целях сохранения симметричности добавляем строку,
+    // аналогичную последнему столбцу таблицы с добавлением нуля
+    // так, что он окажется последним элементом главной диагонали.
+    var transposedColumn = [];
+    transposedColumn = transposeLastColumn(arrayOfDistances);
+    arrayOfDistances.push(transposedColumn.concat(0));
+
+    return arrayOfDistances;
+
+    /*
+        Транспонирует последний столбец таблицы.
+        Возвращает транспонированный столбец в виде
+        одномерного массива
+    */
+    function transposeLastColumn(arrayForTranspose) {
+
+        var transposedArray = [];
+        for (var i = 0; i < arrayForTranspose.length; i++) {
+            transposedArray.push(arrayForTranspose[i][arrayForTranspose[i].length-1]);
+        }
+
+        return transposedArray;
+    }
+
+    /*
+        Удаляет в переданной таблице кандидаты на объединение,
+        в порядке, который соответствует их сортировке по убыванию,
+        и возвращает таблицу без них.
+    */
+    function deleteCandidates(tableOfDistances, candidate1, candidate2){
+
+        if (candidate1 > candidate2) {
+            candidate2 = candidate1 + candidate2;
+            candidate1 = candidate2 - candidate1;
+            candidate2 = candidate2 - candidate1;
+        }
+
+        // Удаляем столбцы
+        for (var i = 0; i < tableOfDistances.length; i++) {
+            tableOfDistances[i].splice(candidate2, 1);
+            tableOfDistances[i].splice(candidate1, 1);
+        }
+
+        // Удаляем строки
+        tableOfDistances.splice(candidate2, 1);
+        tableOfDistances.splice(candidate1, 1);
+
+        return tableOfDistances;
+    }
+
+    /*
+        Находит минимальный элемент в массиве.
+        Возвращает массив из двух элементов:
+        первый - номер строки, второй - столбец этого элемента.
+        Его номер строки и столбца указывает на номера образов,
+        которые являются кандидатами на объединение кластер.
+    */
+    function lookForMin(arrayOfElements){
+
+        // Расстояние не может быть больше бесконечности :D
+        var min = Infinity;
+        var indexOfMin = new Array(2);
+
+        // Находим минимальный элемент
+        for (var i = 0; i < arrayOfElements.length; i++){
+            for (j = 0; j < arrayOfElements.length; j++){
+                //Проверяются только элементы выше главной диагонали
+                if (j > i) {
+                    if (min > arrayOfDistances[i][j]){
+                        min = arrayOfDistances[i][j];
+                        indexOfMin[0] = i;
+                        indexOfMin[1] = j;
+                    }
+                }
+            }
+        }
+        return indexOfMin;
+    }
 }
 
 /*
-    Вычисляет расстояние между образами
-    которое на деле является эвклидовым расстоянием.
-    Образы представлены в виде числовых векторов,
-    хранимые в массивах.
+    Красивый вывод
 */
+function brushOutput(someArray){
 
-function distance(atom1, atom2) {
+    var stringlog = '';
 
-    var sum = 0;
+    for (var i = 0; i < someArray.length; i++) {
+        stringlog = someArray[i].join('\t');
+        console.log(stringlog);
+        stringlog = '';
+    }
+}
 
-    for (var step = 0; step < atom1.length; step++) {
-        sum += Math.pow((atom1[step]-atom2[step]), 2);
+/*
+    Возвращает массив с нормализованными данными об образах,
+    в формате квадратной матрицы, элементы которой эвклидовы
+    расстояния между образами.
+    На входе массив с образами.
+*/
+function normalizateDistances(arrayOfElements) {
+    //  В этот массив записываются промежуточные значения
+    var arrayOfDistances = new Array(arrayOfElements.length);
+    var arrayOfIntermediates = new Array(arrayOfElements.length);
+
+    for (var i = 0; i < arrayOfElements.length; i++) {
+        for (var j = 0; j < arrayOfElements.length; j++) {
+            if (i == j) {
+                arrayOfIntermediates[j] = 0;
+            } else {
+                arrayOfIntermediates[j] = calculateDistance(arrayOfElements[i],
+                                          arrayOfElements[j]);
+            }
+        }
+        arrayOfDistances[i] = arrayOfIntermediates;
+        //Очистка промежуточного массива
+        arrayOfIntermediates = new Array(arrayOfElements.length);
     }
 
-    return Math.round(Math.sqrt(sum));
+    return arrayOfDistances;
+
+    /*
+        Вычисляет расстояние между образами
+        которое на деле является эвклидовым расстоянием.
+        Образы представлены в виде числовых векторов,
+        хранимые в массивах.
+    */
+    function calculateDistance(atom1, atom2) {
+
+        var sum = 0;
+
+        for (var i = 0; i < atom1.length; i++) {
+            sum += Math.pow((atom1[i]-atom2[i]), 2);
+        }
+
+        return Math.round(Math.sqrt(sum));
+    }
+
 }
