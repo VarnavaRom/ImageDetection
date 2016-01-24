@@ -31,7 +31,7 @@ var arrayOfElements = [
     таблица с расстояниями между образами
 */
 var arrayOfDistances = new Array(arrayOfElements.length);
-arrayOfDistances = normalizateDistances(arrayOfElements);
+arrayOfDistances = normalizeDistances(arrayOfElements);
 
 //Выводим полученную таблицу в подобающем виде
 brushOutput(arrayOfDistances);
@@ -177,7 +177,7 @@ function brushOutput(someArray){
     расстояния между образами.
     На входе массив с образами.
 */
-function normalizateDistances(arrayOfElements) {
+function normalizeDistances(arrayOfElements) {
     //  В этот массив записываются промежуточные значения
     var arrayOfDistances = new Array(arrayOfElements.length);
     var arrayOfIntermediates = new Array(arrayOfElements.length);
