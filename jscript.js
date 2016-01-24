@@ -26,20 +26,52 @@ var arrayOfElements = [
                         // [11.21, 21.83, 29.65, 380.7]
 ]
 
+// Массив индексов
+var arrayOfIndexes = new Array(arrayOfElements.length);
+
+for (var i = 0; i < arrayOfIndexes.length; i++) {
+    arrayOfIndexes[i] = 'x'+i;
+}
+
+console.log(arrayOfIndexes);
 // Массив, в который будет записана нормализованная
 // таблица с расстояниями между образами
 var arrayOfDistances = new Array(arrayOfElements.length);
 arrayOfDistances = normalizeDistances(arrayOfElements);
 
 
-// В этот массив будет записана иерархия кластеров
-var arrayOfHierarchy = [];
+// В этот массив будет записана иерархия кластеров.
+// Запись и считывание иерархии должно происходить по
+// классической схеме 'стек'.
+var Hierarchies = [];
+
 
 // Выводим полученную таблицу в подобающем виде
 brushOutput(arrayOfDistances);
 console.log();
-brushOutput(calculateNewDistances(arrayOfDistances));
 
+i = 0;
+var first = 0;
+var second = 0;
+
+while (arrayOfDistances.length > 2) {
+    first = 0;
+    second = 0;
+    first = lookForMin(arrayOfDistances)[0];
+    second = lookForMin(arrayOfDistances)[1];
+    //Добавляем элементы в иерархию
+    Hierarchies.push(new Array(arrayOfIndexes[first], arrayOfIndexes[second]));
+    // Удаляем элементы из индекса
+    arrayOfIndexes.splice(second, 1);
+    arrayOfIndexes.splice(first, 1);
+    arrayOfIndexes.push(String.fromCharCode(97+i));
+
+    arrayOfDistances = calculateNewDistances(arrayOfDistances);
+    i++;
+}
+
+// Добавляем последнюю пару образов в иерархию
+Hierarchies.push(arrayOfIndexes);
 
 
 
@@ -96,7 +128,7 @@ function calculateNewDistances(arrayOfDistances){
 
         var transposedArray = [];
         for (var i = 0; i < arrayForTranspose.length; i++) {
-            transposedArray.push(arrayForTranspose[i][arrayForTranspose[i].length-1]);
+            transposedArray.push(arrayForTranspose[i].slice(-1));
         }
 
         return transposedArray;
@@ -108,11 +140,6 @@ function calculateNewDistances(arrayOfDistances){
         и возвращает таблицу без них.
     */
     function deleteCandidates(tableOfDistances, candidate1, candidate2){
-
-        // Сортируем в порядке возрастания образы по их значению
-        if (candidate1 > candidate2) {
-            candidate2 = [candidate1, candidate1 = candidate2] [0]
-        }
 
         // Удаляем столбцы
         for (var i = 0; i < tableOfDistances.length; i++) {
@@ -154,6 +181,12 @@ function lookForMin(arrayOfElements){
             }
         }
     }
+
+   // Сортируем в порядке возрастания образы по их значению
+    if (indexOfMin[0] > indexOfMin[1]) {
+        indexOfMin[1] = [indexOfMin[0], indexOfMin[0] = indexOfMin[1]] [0]
+    }
+
     return indexOfMin;
 }
 
