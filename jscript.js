@@ -43,8 +43,9 @@ arrayOfDistances = normalizeDistances(arrayOfElements);
 // В этот массив будет записана иерархия кластеров.
 // Запись и считывание иерархии должно происходить по
 // классической схеме 'стек'.
-var Hierarchies = [];
+var Hierarchies = {};
 
+var valuesOfHierarchies = [];
 
 // Выводим полученную таблицу в подобающем виде
 brushOutput(arrayOfDistances);
@@ -55,23 +56,32 @@ var first = 0;
 var second = 0;
 
 while (arrayOfDistances.length > 2) {
-    first = 0;
-    second = 0;
     first = lookForMin(arrayOfDistances)[0];
     second = lookForMin(arrayOfDistances)[1];
     //Добавляем элементы в иерархию
-    Hierarchies.push(new Array(arrayOfIndexes[first], arrayOfIndexes[second]));
+    arrayOfIndexes.push('h'+i);
+    Hierarchies[arrayOfIndexes.slice(-1)] = new Array(arrayOfIndexes[first],
+        arrayOfIndexes[second]);
+    //Добавляем значение уровней иерархии
+    valuesOfHierarchies.push(arrayOfDistances[first][second]);
     // Удаляем элементы из индекса
     arrayOfIndexes.splice(second, 1);
     arrayOfIndexes.splice(first, 1);
-    arrayOfIndexes.push(String.fromCharCode(97+i));
 
     arrayOfDistances = calculateNewDistances(arrayOfDistances);
+    brushOutput(arrayOfDistances);
     i++;
 }
 
-// Добавляем последнюю пару образов в иерархию
-Hierarchies.push(arrayOfIndexes);
+arrayOfIndexes.push('h'+i);
+Hierarchies[arrayOfIndexes.slice(-1)] = new Array(arrayOfIndexes[first],
+    arrayOfIndexes[second]);
+
+// Добавляем последний уровень иерархии
+valuesOfHierarchies.push( arrayOfDistances[0][1] );
+console.log( Hierarchies );
+console.log( valuesOfHierarchies );
+
 
 
 
