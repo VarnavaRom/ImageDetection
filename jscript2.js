@@ -4,26 +4,26 @@ var arrayOfElements = [
                         [4.714, 47.32, 27.97, 499.2],
                         [4.943, 45.46, 24.73, 535.3],
                         [5.242, 52.01, 21.6, 474.6],
-                        [5.521, 49.03, 22.43, 533.9]//,
-                        // [7.904, 66.17, 19.19, 118.9],
-                        // [5.917, 81.57, 13.27, 137.7],
-                        // [7.296, 71.47, 15.45, 135.8],
-                        // [6.886, 70.57, 17.43, 143],
-                        // [8.4, 40.54, 13.28, 846.2],
-                        // [8.88, 56.97, 16.95, 629.1],
-                        // [7.969, 42.79, 8.648, 795],
-                        // [7.352, 28.35, 10.69, 563],
-                        // [9.121, 29.09, 9.003, 429.4],
-                        // [10.42, 43.19, 10.27, 725.2],
-                        // [9.01, 45.69, 14.61, 669.1],
-                        // [12.14, 28.53, 24.8, 379.5],
-                        // [11.69, 32.84, 21.53, 384],
-                        // [11.77, 28.64, 21.62, 468.3],
-                        // [11.06, 40.08, 30.42, 495.5],
-                        // [10.17, 25.49, 26.17, 364.4],
-                        // [10.76, 28.67, 25.15, 429.6],
-                        // [11.56, 38.88, 23.23, 584.7],
-                        // [11.21, 21.83, 29.65, 380.7]
+                        [5.521, 49.03, 22.43, 533.9],
+                        [7.904, 66.17, 19.19, 118.9],
+                        [5.917, 81.57, 13.27, 137.7],
+                        [7.296, 71.47, 15.45, 135.8],
+                        [6.886, 70.57, 17.43, 143],
+                        [8.4, 40.54, 13.28, 846.2],
+                        [8.88, 56.97, 16.95, 629.1],
+                        [7.969, 42.79, 8.648, 795],
+                        [7.352, 28.35, 10.69, 563],
+                        [9.121, 29.09, 9.003, 429.4],
+                        [10.42, 43.19, 10.27, 725.2],
+                        [9.01, 45.69, 14.61, 669.1],
+                        [12.14, 28.53, 24.8, 379.5],
+                        [11.69, 32.84, 21.53, 384],
+                        [11.77, 28.64, 21.62, 468.3],
+                        [11.06, 40.08, 30.42, 495.5],
+                        [10.17, 25.49, 26.17, 364.4],
+                        [10.76, 28.67, 25.15, 429.6],
+                        [11.56, 38.88, 23.23, 584.7],
+                        [11.21, 21.83, 29.65, 380.7]
 ]
 
 // Массив индексов
@@ -33,7 +33,7 @@ for (var i = 0; i < arrayOfIndexes.length; i++) {
     arrayOfIndexes[i] = 'x'+i;
 }
 
-console.log(arrayOfIndexes);
+// console.log(arrayOfIndexes);
 // Массив, в который будет записана нормализованная
 // таблица с расстояниями между образами
 var arrayOfDistances = new Array(arrayOfElements.length);
@@ -48,8 +48,7 @@ var Hierarchies = {};
 var valuesOfHierarchies = [];
 
 // Выводим полученную таблицу в подобающем виде
-brushOutput(arrayOfDistances);
-console.log();
+// brushOutput(arrayOfDistances);
 
 i = 0;
 var first = 0;
@@ -60,29 +59,129 @@ while (arrayOfDistances.length > 2) {
     second = lookForMin(arrayOfDistances)[1];
     //Добавляем элементы в иерархию
     arrayOfIndexes.push('h'+i);
-    Hierarchies[arrayOfIndexes.slice(-1)] = new Array(arrayOfIndexes[first],
-        arrayOfIndexes[second]);
-    //Добавляем значение уровней иерархии
+        //Добавляем значение уровней иерархии
     valuesOfHierarchies.push(arrayOfDistances[first][second]);
+    Hierarchies[arrayOfIndexes.slice(-1)] = {
+        childElements : new Array(arrayOfIndexes[first],
+            arrayOfIndexes[second]),
+        level : +valuesOfHierarchies.slice(-1),
+    }
+
     // Удаляем элементы из индекса
     arrayOfIndexes.splice(second, 1);
     arrayOfIndexes.splice(first, 1);
-
     arrayOfDistances = calculateNewDistances(arrayOfDistances);
-    brushOutput(arrayOfDistances);
     i++;
 }
 
-arrayOfIndexes.push('h'+i);
-Hierarchies[arrayOfIndexes.slice(-1)] = new Array(arrayOfIndexes[first],
-    arrayOfIndexes[second]);
+
 
 // Добавляем последний уровень иерархии
 valuesOfHierarchies.push( arrayOfDistances[0][1] );
-console.log( Hierarchies );
-console.log( valuesOfHierarchies );
+
+Hierarchies['h'+i] = {
+    childElements : arrayOfIndexes,
+    level : +valuesOfHierarchies.slice(-1),
+}
+
+Hierarchies['h'+i].position = 1;
 
 
+console.log(Hierarchies);
+// console.log(valuesOfHierarchies);
+
+// // Позиционируем элементы
+// Hierarchies = postioningClusters(Hierarchies, valuesOfHierarchies.length);
+
+// console.log(Hierarchies);
+
+
+
+// Центр на моем экране в терминале
+var n = 1;
+var countOfSpaces = 180;
+var tabulation = '';
+var tempString = '';
+
+for (i = valuesOfHierarchies.length - 1; i >= 0; i--){
+    tabulation = muliplicateCharacter(" ", countOfSpaces/(n+1));
+    //console.log(countOfSpaces/(n+1));
+    tempString = "|" + valuesOfHierarchies[i] +
+        muliplicateCharacter(tabulation, Hierarchies['h'+i].position);
+    for (z = 0; z < 2; z++){
+        if (Hierarchies['h'+i].childElements[z][0] !== 'x'){
+            tempString += Hierarchies['h'+i].childElements[z] + tabulation;
+        } else tempString += tabulation;
+    }
+    //console.log(tempString);
+    tempString = '';
+    n *= 2;
+}
+
+// console.log("|0");
+// console.log("|" + muliplicateCharacter("_", countOfSpaces) );
+var basicImages = [];
+
+tabulation = muliplicateCharacter(" ", countOfSpaces/(basicImages.length+1)-10);
+basicImages = positioningBasicImages(Hierarchies, valuesOfHierarchies.length);
+// console.log(basicImages);
+// console.log(tabulation + basicImages.join(tabulation) + tabulation);
+
+/*
+    Позиционирует базовые образы по объекту Hierarchies.
+    Возвращает массив базовых образов в том порядке,
+    в котором они должны быть выведены
+*/
+function positioningBasicImages(Hierarchies, lengthHierarchies){
+
+    var arrayOfIntermediates = [];
+
+    for ( i = 0; i < lengthHierarchies; i++){
+        for (z = 0; z < 2; z++){
+            if (Hierarchies['h'+i].childElements[z][0] == 'x') {
+                arrayOfIntermediates.push(Hierarchies['h'+i].childElements[z]);
+            }
+        }
+    }
+
+    arrayOfIntermediates.reverse();
+
+    return arrayOfIntermediates;
+}
+
+// Добавляет в объект Hierarchies позиционирование атрибутов для вывода.
+// Возвращает обновленный объект Hierarchies.
+function postioningClusters(Hierarchies,lengthHierarchies){
+
+    var i = 0;
+    var j = 0;
+    var z = 0;
+
+    for (i = lengthHierarchies-1; i >= 0; i--){
+        for (j = lengthHierarchies-1; j >= 0; j--) {
+            for (z = 0; z < 2; z++){
+                if ( 'h'+i == Hierarchies['h'+j].childElements[z]){
+                    Hierarchies['h'+i].parentElement = 'h'+j;
+                    Hierarchies['h'+i].position = Hierarchies['h'+j].position*2-1+z;
+                }
+            }
+        }
+    }
+
+    return Hierarchies;
+}
+
+
+
+// Возвращает строку содержащую символ symbol размноженный в factor раз.
+function muliplicateCharacter(symbol, factor) {
+    var newString = '';
+    for (var i = 0; i < factor; i++){
+        newString += symbol;
+    }
+
+    return newString;
+}
 /*
     Вычисляет новые расстояния между образами и новым кластером.
     Возвращает массив, в котором добавлен новый кластер.
@@ -136,7 +235,7 @@ function calculateNewDistances(arrayOfDistances){
 
         var transposedArray = [];
         for (var i = 0; i < arrayForTranspose.length; i++) {
-            transposedArray.push(arrayForTranspose[i].slice(-1));
+            transposedArray.push(+arrayForTranspose[i].slice(-1));
         }
 
         return transposedArray;
